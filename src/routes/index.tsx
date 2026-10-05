@@ -9,11 +9,10 @@ import { Sheet, SheetContent, SheetDescription, SheetTitle } from "@/components/
 import { Textarea } from "@/components/ui/textarea";
 import heroImage from "@/assets/helena-hero.jpg";
 import { categories, extras, formatCurrency, products, type MenuProduct } from "@/data/menu";
+import { STORE, isOpenNow, nextOpeningLabel, whatsappOrderUrl } from "@/data/store";
 
 type CartItem = { key: string; product: MenuProduct; extras: string[]; notes: string; quantity: number };
 type Checkout = { name: string; phone: string; fulfillment: "delivery" | "pickup"; address: string; payment: "Pix" | "Cartão" | "Dinheiro"; change: string };
-
-const DELIVERY_FEE = 6;
 
 export const Route = createFileRoute("/")({
   head: () => ({ meta: [
@@ -30,6 +29,7 @@ export const Route = createFileRoute("/")({
 function MenuPage() {
   const reduceMotion = useReducedMotion();
   const [dark, setDark] = useState(true);
+  const [open, setOpen] = useState(true);
   const [active, setActive] = useState("burgers");
   const [selected, setSelected] = useState<MenuProduct | null>(null);
   const [chosenExtras, setChosenExtras] = useState<string[]>([]);
@@ -42,6 +42,7 @@ function MenuPage() {
   const [form, setForm] = useState<Checkout>({ name: "", phone: "", fulfillment: "delivery", address: "", payment: "Pix", change: "" });
 
   useEffect(() => { document.documentElement.classList.toggle("dark", dark); }, [dark]);
+  useEffect(() => { setOpen(isOpenNow()); }, []);
   useEffect(() => {
     const saved = window.localStorage.getItem("helenas-cart");
     if (saved) try { setCart(JSON.parse(saved) as CartItem[]); } catch { window.localStorage.removeItem("helenas-cart"); }
@@ -55,7 +56,7 @@ function MenuPage() {
 
   const count = cart.reduce((sum, item) => sum + item.quantity, 0);
   const subtotal = cart.reduce((sum, item) => sum + item.quantity * (item.product.price + extras.filter(e => item.extras.includes(e.id)).reduce((s, e) => s + e.price, 0)), 0);
-  const delivery = form.fulfillment === "delivery" ? DELIVERY_FEE : 0;
+  const delivery = form.fulfillment === "delivery" ? STORE.deliveryFee : 0;
 
   const openProduct = (product: MenuProduct) => { setSelected(product); setChosenExtras([]); setNotes(""); setQuantity(1); };
   const addItem = () => {
@@ -67,7 +68,7 @@ function MenuPage() {
   const finishOrder = () => {
     const lines = cart.map(item => `• ${item.quantity}x ${item.product.name} — ${formatCurrency(item.quantity * item.product.price)}${item.extras.length ? `\n  Adicionais: ${extras.filter(e => item.extras.includes(e.id)).map(e => e.name).join(", ")}` : ""}${item.notes ? `\n  Obs.: ${item.notes}` : ""}`);
     const message = `*Novo pedido — Helena's Burger*\n\n${lines.join("\n")}\n\nSubtotal: ${formatCurrency(subtotal)}\n${form.fulfillment === "delivery" ? `Entrega: ${formatCurrency(delivery)}\nEndereço: ${form.address}` : "Retirada no balcão"}\n*Total: ${formatCurrency(subtotal + delivery)}*\n\nCliente: ${form.name}\nTelefone: ${form.phone}\nPagamento: ${form.payment}${form.payment === "Dinheiro" && form.change ? ` (troco para ${form.change})` : ""}`;
-    window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer");
+    window.open(whatsappOrderUrl(message), "_blank", "noopener,noreferrer");
   };
 
   return <div className="min-h-screen overflow-x-hidden bg-background text-foreground">
@@ -81,7 +82,7 @@ function MenuPage() {
       <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-background/5" />
       <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/30" />
       <motion.div initial={reduceMotion ? false : { opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .75 }} className="relative z-10 w-full max-w-7xl px-5 pb-20 sm:px-10 sm:pb-0 lg:px-16">
-        <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-background/55 px-3 py-2 text-xs font-semibold backdrop-blur-md"><span className="h-2 w-2 rounded-full bg-green-500" /> Aberto agora <span className="text-muted-foreground">• até 23h</span></div>
+        <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-background/55 px-3 py-2 text-xs font-semibold backdrop-blur-md"><span className={`h-2 w-2 rounded-full ${open ? "bg-green-500" : "bg-accent"}`} /> {open ? "Aberto agora" : "Fechado agora"} <span className="text-muted-foreground">• {open ? `até ${STORE.closeHour}h` : nextOpeningLabel()}</span></div>
         <p className="mb-2 text-xs font-bold uppercase text-primary sm:text-sm">Artesanal. Suculento. Inesquecível.</p>
         <h1 className="max-w-3xl font-display text-[clamp(4.5rem,13vw,10rem)] leading-[.78] uppercase">Helena's<br/><span className="text-primary">Burger</span></h1>
         <p className="mt-6 max-w-md text-base text-foreground/75 sm:text-lg">Smash burgers feitos na brasa, ingredientes de verdade e aquele sabor que pede bis.</p>
@@ -122,10 +123,10 @@ function MenuPage() {
     <section className="border-t border-border bg-card px-5 py-16 sm:px-10">
       <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-2">
         <div><p className="text-xs font-bold uppercase text-primary">Desde 2021</p><h2 className="mt-2 font-display text-5xl uppercase sm:text-7xl">Feito com alma.<br/>Servido com sabor.</h2><p className="mt-5 max-w-xl leading-relaxed text-muted-foreground">Na Helena's, cada burger começa com ingredientes selecionados e termina com aquele cuidado de comida feita para quem a gente gosta.</p><a href="https://instagram.com" target="_blank" rel="noreferrer" className="mt-7 inline-flex items-center gap-2 font-semibold text-primary"><Instagram className="h-5 w-5"/> @helenasburger</a></div>
-        <div className="grid gap-4 sm:grid-cols-2"><div className="rounded-lg border border-border p-5"><MapPin className="text-primary"/><h3 className="mt-4 font-bold">Onde estamos</h3><address className="mt-2 text-sm not-italic leading-relaxed text-muted-foreground">Estr. de Adrianópolis, 2601 — Loja A<br/>Jardim Corumbá, Nova Iguaçu — RJ<br/>CEP 26090-005</address></div><div className="rounded-lg border border-border p-5"><Clock3 className="text-primary"/><h3 className="mt-4 font-bold">Horários</h3><p className="mt-2 text-sm text-muted-foreground">Terça a domingo<br/>18h às 23h</p></div></div>
+        <div className="grid gap-4 sm:grid-cols-2"><div className="rounded-lg border border-border p-5"><MapPin className="text-primary"/><h3 className="mt-4 font-bold">Onde estamos</h3><address className="mt-2 text-sm not-italic leading-relaxed text-muted-foreground">Estr. de Adrianópolis, 2601 — Loja A<br/>Jardim Corumbá, Nova Iguaçu — RJ<br/>CEP 26090-005</address><p className="mt-3 text-xs font-semibold text-primary">Entrega em até {STORE.deliveryRadiusKm} km</p></div><div className="rounded-lg border border-border p-5"><Clock3 className="text-primary"/><h3 className="mt-4 font-bold">Horários</h3><p className="mt-2 text-sm text-muted-foreground">Terça a domingo<br/>{STORE.openHour}h às {STORE.closeHour}h</p><p className="mt-3 text-xs font-semibold text-primary">Segunda: fechado</p></div></div>
       </div>
     </section>
-    <footer className="border-t border-border px-5 py-8 text-center text-xs text-muted-foreground">© 2026 Helena's Burger • Pedidos e contato pelo WhatsApp</footer>
+    <footer className="border-t border-border px-5 py-8 text-center text-xs text-muted-foreground">© 2026 Helena's Burger • Pedidos e contato pelo WhatsApp {STORE.phoneDisplay}</footer>
 
     <AnimatePresence>{count > 0 && <motion.div initial={{ y: 90 }} animate={{ y: 0, scale: bump ? [1, 1.06, 1] : 1 }} exit={{ y: 90 }} className="fixed inset-x-4 bottom-4 z-40 mx-auto max-w-lg"><Button onClick={() => { setCartOpen(true); setStep(0); }} className="h-16 w-full justify-between rounded-lg px-5 shadow-2xl"><span className="flex items-center gap-3"><span className="grid h-8 w-8 place-items-center rounded-full bg-primary-foreground/15 text-sm">{count}</span><ShoppingBag/> Ver carrinho</span><span>{formatCurrency(subtotal)}</span></Button></motion.div>}</AnimatePresence>
 
@@ -143,7 +144,7 @@ function MenuPage() {
       <div className="border-b border-border p-5 pr-12"><SheetTitle className="font-display text-3xl uppercase">{step === 0 ? "Seu pedido" : "Finalizar pedido"}</SheetTitle><SheetDescription>{step === 0 ? `${count} ${count === 1 ? "item" : "itens"} no carrinho` : `Etapa ${step} de 3`}</SheetDescription></div>
       <div className="flex-1 overflow-y-auto p-5">
         {step === 0 && <div className="space-y-4">{cart.map(item => <div key={item.key} className="border-b border-border pb-4"><div className="grid grid-cols-[minmax(0,1fr)_auto] gap-3"><div className="min-w-0"><h3 className="font-bold">{item.product.name}</h3>{item.extras.length > 0 && <p className="mt-1 text-xs text-muted-foreground">{extras.filter(e => item.extras.includes(e.id)).map(e => e.name).join(", ")}</p>}<p className="mt-2 text-sm font-semibold text-primary">{formatCurrency(item.product.price * item.quantity)}</p></div><Button variant="ghost" size="icon" onClick={() => setItemQuantity(item.key, 0)} aria-label={`Remover ${item.product.name}`}><Trash2/></Button></div><div className="mt-2 flex items-center gap-2"><Button variant="outline" size="icon" onClick={() => setItemQuantity(item.key, item.quantity - 1)}><Minus/></Button><span className="w-6 text-center text-sm font-bold">{item.quantity}</span><Button variant="outline" size="icon" onClick={() => setItemQuantity(item.key, item.quantity + 1)}><Plus/></Button></div></div>)}</div>}
-        {step === 1 && <div className="space-y-4"><label className="block text-sm font-semibold">Nome<Input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="Seu nome" className="mt-2 h-11"/></label><label className="block text-sm font-semibold">Telefone<Input value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} placeholder="(11) 99999-9999" className="mt-2 h-11"/></label><fieldset><legend className="text-sm font-semibold">Como você quer receber?</legend><div className="mt-2 grid grid-cols-2 gap-2">{(["delivery", "pickup"] as const).map(option => <Button key={option} variant={form.fulfillment === option ? "default" : "outline"} onClick={() => setForm({ ...form, fulfillment: option })}>{option === "delivery" ? "Entrega" : "Retirada"}</Button>)}</div></fieldset>{form.fulfillment === "delivery" && <label className="block text-sm font-semibold">Endereço<Input value={form.address} onChange={e => setForm({ ...form, address: e.target.value })} placeholder="Rua, número e complemento" className="mt-2 h-11"/></label>}</div>}
+        {step === 1 && <div className="space-y-4"><label className="block text-sm font-semibold">Nome<Input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="Seu nome" className="mt-2 h-11"/></label><label className="block text-sm font-semibold">Telefone<Input value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} placeholder="(11) 99999-9999" className="mt-2 h-11"/></label><fieldset><legend className="text-sm font-semibold">Como você quer receber?</legend><div className="mt-2 grid grid-cols-2 gap-2">{(["delivery", "pickup"] as const).map(option => <Button key={option} variant={form.fulfillment === option ? "default" : "outline"} onClick={() => setForm({ ...form, fulfillment: option })}>{option === "delivery" ? "Entrega" : "Retirada"}</Button>)}</div><p className="mt-2 text-xs text-muted-foreground">Entregamos em um raio de até {STORE.deliveryRadiusKm} km de Jardim Corumbá, Nova Iguaçu.</p></fieldset>{form.fulfillment === "delivery" && <label className="block text-sm font-semibold">Endereço<Input value={form.address} onChange={e => setForm({ ...form, address: e.target.value })} placeholder="Rua, número e complemento" className="mt-2 h-11"/></label>}</div>}
         {step === 2 && <div><h3 className="font-bold">Forma de pagamento</h3><div className="mt-3 space-y-2">{(["Pix", "Cartão", "Dinheiro"] as const).map(payment => <Button key={payment} variant={form.payment === payment ? "default" : "outline"} className="w-full justify-start" onClick={() => setForm({ ...form, payment })}>{form.payment === payment && <Check/>}{payment}</Button>)}</div>{form.payment === "Dinheiro" && <label className="mt-4 block text-sm font-semibold">Troco para<Input value={form.change} onChange={e => setForm({ ...form, change: e.target.value })} placeholder="Ex.: R$ 100,00" className="mt-2"/></label>}</div>}
         {step === 3 && <div><div className="rounded-lg border border-border bg-secondary/50 p-4"><h3 className="font-bold">Resumo</h3><div className="mt-4 space-y-3">{cart.map(item => <div key={item.key} className="flex justify-between gap-4 text-sm"><span>{item.quantity}x {item.product.name}</span><span>{formatCurrency(item.product.price * item.quantity)}</span></div>)}</div><div className="mt-4 space-y-2 border-t border-border pt-4 text-sm"><div className="flex justify-between"><span>Subtotal</span><span>{formatCurrency(subtotal)}</span></div><div className="flex justify-between"><span>Entrega</span><span>{delivery ? formatCurrency(delivery) : "Grátis"}</span></div><div className="flex justify-between text-lg font-bold"><span>Total</span><span className="text-primary">{formatCurrency(subtotal + delivery)}</span></div></div></div><p className="mt-4 text-xs leading-relaxed text-muted-foreground">Ao continuar, seu pedido será preparado em uma mensagem e o WhatsApp será aberto para o envio.</p></div>}
       </div>
