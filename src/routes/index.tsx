@@ -8,15 +8,11 @@ import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
 import heroImage from "@/assets/helena-hero.jpg";
-import burgersImage from "@/assets/menu-burgers.jpg";
-import sidesImage from "@/assets/menu-sides.jpg";
-import drinksImage from "@/assets/menu-drinks-desserts.jpg";
 import { categories, extras, formatCurrency, products, type MenuProduct } from "@/data/menu";
 
 type CartItem = { key: string; product: MenuProduct; extras: string[]; notes: string; quantity: number };
 type Checkout = { name: string; phone: string; fulfillment: "delivery" | "pickup"; address: string; payment: "Pix" | "Cartão" | "Dinheiro"; change: string };
 
-const images = { burgers: burgersImage, sides: sidesImage, drinks: drinksImage };
 const DELIVERY_FEE = 6;
 
 export const Route = createFileRoute("/")({
@@ -110,7 +106,7 @@ function MenuPage() {
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {items.map((product, index) => <motion.article key={product.id} initial={reduceMotion ? false : { opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: .15 }} transition={{ delay: index * .07 }} onClick={() => openProduct(product)} className="group cursor-pointer overflow-hidden rounded-lg border border-border bg-card shadow-sm transition-shadow hover:shadow-xl">
               <div className="relative aspect-[16/10] overflow-hidden bg-muted">
-                <img src={images[product.image]} alt={product.name} width={1200} height={900} loading="lazy" className={`h-full w-full object-cover transition-transform duration-500 group-hover:scale-105 ${product.category === "burgers" ? "object-center" : ""}`} />
+                <img src={product.image} alt={product.imageAlt} width={960} height={600} loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
                 {product.featured && <span className="absolute left-3 top-3 rounded-full bg-accent px-3 py-1 text-[10px] font-bold uppercase text-accent-foreground">Mais pedido</span>}
               </div>
               <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-4 p-5">
@@ -135,7 +131,7 @@ function MenuPage() {
 
     <Dialog open={Boolean(selected)} onOpenChange={open => { if (!open) setSelected(null); }}>
       <DialogContent className="bottom-0 top-auto max-h-[92vh] translate-y-0 overflow-y-auto rounded-t-xl border-border p-0 sm:bottom-auto sm:top-1/2 sm:max-w-2xl sm:-translate-y-1/2 sm:rounded-lg">
-        {selected && <><div className="aspect-[16/8] overflow-hidden bg-muted"><img src={images[selected.image]} alt={selected.name} width={1200} height={900} className="h-full w-full object-cover" /></div><div className="p-5 sm:p-7"><DialogTitle className="font-display text-4xl uppercase">{selected.name}</DialogTitle><DialogDescription className="mt-2 leading-relaxed">{selected.description}</DialogDescription>
+        {selected && <><div className="aspect-[16/10] overflow-hidden bg-muted"><img src={selected.image} alt={selected.imageAlt} width={960} height={600} loading="lazy" className="h-full w-full object-cover" /></div><div className="p-5 sm:p-7"><DialogTitle className="font-display text-4xl uppercase">{selected.name}</DialogTitle><DialogDescription className="mt-2 leading-relaxed">{selected.description}</DialogDescription>
           <div className="mt-6"><h4 className="font-bold">Quer deixar ainda melhor?</h4><div className="mt-3 space-y-2">{extras.map(extra => <label key={extra.id} className="flex cursor-pointer items-center justify-between rounded-md border border-border p-3"><span className="flex items-center gap-3"><input type="checkbox" checked={chosenExtras.includes(extra.id)} onChange={() => setChosenExtras(current => current.includes(extra.id) ? current.filter(id => id !== extra.id) : [...current, extra.id])} className="h-4 w-4 accent-primary"/>{extra.name}</span><span className="text-sm text-muted-foreground">+ {formatCurrency(extra.price)}</span></label>)}</div></div>
           <label className="mt-5 block text-sm font-bold">Alguma observação?<Textarea value={notes} onChange={event => setNotes(event.target.value)} placeholder="Ex.: sem cebola, ponto da carne..." className="mt-2 font-normal" /></label>
           <div className="mt-6 grid grid-cols-[auto_minmax(0,1fr)] gap-3"><div className="flex items-center rounded-md border border-border"><Button variant="ghost" size="icon" onClick={() => setQuantity(q => Math.max(1, q - 1))} aria-label="Diminuir quantidade"><Minus/></Button><span className="w-8 text-center font-bold">{quantity}</span><Button variant="ghost" size="icon" onClick={() => setQuantity(q => q + 1)} aria-label="Aumentar quantidade"><Plus/></Button></div><Button className="h-full" onClick={addItem}>Adicionar • {formatCurrency(quantity * (selected.price + extras.filter(e => chosenExtras.includes(e.id)).reduce((s, e) => s + e.price, 0)))}</Button></div>
