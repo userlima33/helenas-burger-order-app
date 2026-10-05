@@ -1,4 +1,4 @@
-# Helena's Digital Menu
+# Helena's Digital Menu - https://helenas-burger-order-app.lovable.app/
 
 Crie um site de cardápio digital e pedidos online para a hamburgueria "Helena's Burger", em português do Brasil, mobile-first, com visual moderno, premium e apetitoso.
 
