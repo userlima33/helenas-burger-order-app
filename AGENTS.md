@@ -10,3 +10,4 @@
 <!-- LOVABLE:END -->
 
 - Keep editable restaurant catalog content in `src/data/menu.ts` so pricing and products stay separate from presentation logic.
+- Keep store operating facts (contact number, opening hours, closed days, delivery fee and radius) in `src/data/store.ts` as the single source the UI and the open/closed status read from, so a change confirmed by the owner only has to be made once.
