@@ -1,11 +1,15 @@
 import { describe, expect, it } from "vitest";
 
-import { STORE, isOpenNow, nextOpeningLabel, whatsappOrderUrl } from "@/data/store";
+import { STORE, instagramUrl, isOpenNow, nextOpeningLabel, whatsappOrderUrl } from "@/data/store";
 
 // 2026-10-05 foi uma segunda-feira; 2026-10-06 uma terça e 2026-10-11 um domingo.
 describe("Funcionamento da loja", () => {
   it("manda o pedido para o WhatsApp da Helena", () => {
     expect(whatsappOrderUrl("Oi")).toBe("https://wa.me/5521986368357?text=Oi");
+  });
+
+  it("leva ao perfil verdadeiro do Instagram", () => {
+    expect(instagramUrl).toBe("https://instagram.com/hamburgueria_helenasburger");
   });
 
   it("não abre na segunda, mesmo dentro do horário", () => {
