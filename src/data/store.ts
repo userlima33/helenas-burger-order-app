@@ -5,6 +5,7 @@ export const STORE = {
   name: "Helena's Burger",
   whatsapp: "5521986368357", // wa.me exige DDI + DDD sem símbolos
   phoneDisplay: "(21) 98636-8357",
+  instagram: "hamburgueria_helenasburger",
   deliveryFee: 6,
   deliveryRadiusKm: 10,
   openHour: 18,
