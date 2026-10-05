@@ -8,3 +8,5 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Keep editable restaurant catalog content in `src/data/menu.ts` so pricing and products stay separate from presentation logic.
