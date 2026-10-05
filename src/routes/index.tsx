@@ -9,7 +9,7 @@ import { Sheet, SheetContent, SheetDescription, SheetTitle } from "@/components/
 import { Textarea } from "@/components/ui/textarea";
 import heroImage from "@/assets/helena-hero.jpg";
 import { categories, extras, formatCurrency, products, type MenuProduct } from "@/data/menu";
-import { STORE, isOpenNow, nextOpeningLabel, whatsappOrderUrl } from "@/data/store";
+import { STORE, instagramUrl, isOpenNow, nextOpeningLabel, whatsappOrderUrl } from "@/data/store";
 
 type CartItem = { key: string; product: MenuProduct; extras: string[]; notes: string; quantity: number };
 type Checkout = { name: string; phone: string; fulfillment: "delivery" | "pickup"; address: string; payment: "Pix" | "Cartão" | "Dinheiro"; change: string };
@@ -122,7 +122,7 @@ function MenuPage() {
 
     <section className="border-t border-border bg-card px-5 py-16 sm:px-10">
       <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-2">
-        <div><p className="text-xs font-bold uppercase text-primary">Desde 2021</p><h2 className="mt-2 font-display text-5xl uppercase sm:text-7xl">Feito com alma.<br/>Servido com sabor.</h2><p className="mt-5 max-w-xl leading-relaxed text-muted-foreground">Na Helena's, cada burger começa com ingredientes selecionados e termina com aquele cuidado de comida feita para quem a gente gosta.</p><a href="https://instagram.com" target="_blank" rel="noreferrer" className="mt-7 inline-flex items-center gap-2 font-semibold text-primary"><Instagram className="h-5 w-5"/> @helenasburger</a></div>
+        <div><p className="text-xs font-bold uppercase text-primary">Desde 2021</p><h2 className="mt-2 font-display text-5xl uppercase sm:text-7xl">Feito com alma.<br/>Servido com sabor.</h2><p className="mt-5 max-w-xl leading-relaxed text-muted-foreground">Na Helena's, cada burger começa com ingredientes selecionados e termina com aquele cuidado de comida feita para quem a gente gosta.</p><a href={instagramUrl} target="_blank" rel="noreferrer" className="mt-7 inline-flex items-center gap-2 font-semibold text-primary"><Instagram className="h-5 w-5"/> @{STORE.instagram}</a></div>
         <div className="grid gap-4 sm:grid-cols-2"><div className="rounded-lg border border-border p-5"><MapPin className="text-primary"/><h3 className="mt-4 font-bold">Onde estamos</h3><address className="mt-2 text-sm not-italic leading-relaxed text-muted-foreground">Estr. de Adrianópolis, 2601 — Loja A<br/>Jardim Corumbá, Nova Iguaçu — RJ<br/>CEP 26090-005</address><p className="mt-3 text-xs font-semibold text-primary">Entrega em até {STORE.deliveryRadiusKm} km</p></div><div className="rounded-lg border border-border p-5"><Clock3 className="text-primary"/><h3 className="mt-4 font-bold">Horários</h3><p className="mt-2 text-sm text-muted-foreground">Terça a domingo<br/>{STORE.openHour}h às {STORE.closeHour}h</p><p className="mt-3 text-xs font-semibold text-primary">Segunda: fechado</p></div></div>
       </div>
     </section>

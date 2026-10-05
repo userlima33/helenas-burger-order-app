@@ -33,3 +33,5 @@ export const nextOpeningLabel = (date = new Date()) => {
 };
 
 export const whatsappOrderUrl = (message: string) => `https://wa.me/${STORE.whatsapp}?text=${encodeURIComponent(message)}`;
+
+export const instagramUrl = `https://instagram.com/${STORE.instagram}`;
