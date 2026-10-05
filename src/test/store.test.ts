@@ -20,9 +20,10 @@ describe("Funcionamento da loja", () => {
   });
 
   it("avisa quando reabre", () => {
-    expect(nextOpeningLabel(new Date(2026, 9, 5, 12, 0))).toBe("abre terça às 18h");
+    expect(nextOpeningLabel(new Date(2026, 9, 5, 12, 0))).toBe("abre amanhã às 18h");
     expect(nextOpeningLabel(new Date(2026, 9, 6, 15, 0))).toBe("abre hoje às 18h");
     expect(nextOpeningLabel(new Date(2026, 9, 6, 23, 30))).toBe("abre amanhã às 18h");
+    expect(nextOpeningLabel(new Date(2026, 9, 11, 23, 30))).toBe("abre terça às 18h");
   });
 
   it("cobra taxa de entrega e raio de 10km", () => {
