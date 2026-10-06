@@ -72,7 +72,8 @@ function MenuPage() {
   const setItemQuantity = (key: string, next: number) => setCart(current => next < 1 ? current.filter(item => item.key !== key) : current.map(item => item.key === key ? { ...item, quantity: next } : item));
   const finishOrder = () => {
     const lines = cart.map(item => `• ${item.quantity}x ${item.product.name} — ${formatCurrency(item.quantity * item.product.price)}${item.extras.length ? `\n  Adicionais: ${extras.filter(e => item.extras.includes(e.id)).map(e => e.name).join(", ")}` : ""}${item.notes ? `\n  Obs.: ${item.notes}` : ""}`);
-    const message = `*Novo pedido — Helena's Burger*\n\n${lines.join("\n")}\n\nSubtotal: ${formatCurrency(subtotal)}\n${form.fulfillment === "delivery" ? `Entrega: ${formatCurrency(delivery)}\nEndereço: ${form.address}` : "Retirada no balcão"}\n*Total: ${formatCurrency(subtotal + delivery)}*\n\nCliente: ${form.name}\nTelefone: ${form.phone}\nPagamento: ${form.payment}${form.payment === "Dinheiro" && form.change ? ` (troco para ${form.change})` : ""}`;
+    const closedNotice = open ? "" : `*Loja fechada no momento — o pedido será atendido na próxima abertura (${nextOpeningLabel()}).*\n\n`;
+    const message = `*Novo pedido — Helena's Burger*\n\n${closedNotice}${lines.join("\n")}\n\nSubtotal: ${formatCurrency(subtotal)}\n${form.fulfillment === "delivery" ? `Entrega: ${formatCurrency(delivery)}\nEndereço: ${form.address}` : "Retirada no balcão"}\n*Total: ${formatCurrency(subtotal + delivery)}*\n\nCliente: ${form.name}\nTelefone: ${form.phone}\nPagamento: ${form.payment}${form.payment === "Dinheiro" && form.change ? ` (troco para ${form.change})` : ""}`;
     window.open(whatsappOrderUrl(message), "_blank", "noopener,noreferrer");
   };
 
