@@ -125,7 +125,7 @@ function MenuPage() {
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {items.map((product, index) => <motion.article key={product.id} initial={reduceMotion ? false : { opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: .15 }} transition={{ delay: index * .07 }} onClick={() => openProduct(product)} className="group cursor-pointer overflow-hidden rounded-lg border border-border bg-card shadow-sm transition-shadow hover:shadow-xl">
               <div className="relative aspect-[16/10] overflow-hidden bg-muted">
-                <img src={product.image} alt={product.imageAlt} width={960} height={600} loading="lazy" onLoad={event => event.currentTarget.classList.remove("opacity-0")} className="h-full w-full object-cover opacity-0 transition-[opacity,transform] duration-500 group-hover:scale-105" />
+                <img src={product.image} alt={product.imageAlt} width={960} height={600} loading="lazy" ref={img => { if (img?.complete) img.classList.remove("opacity-0"); }} onLoad={event => event.currentTarget.classList.remove("opacity-0")} className="h-full w-full object-cover opacity-0 transition-[opacity,transform] duration-500 group-hover:scale-105" />
                 {product.featured && <span className="absolute left-3 top-3 rounded-full bg-accent px-3 py-1 text-[10px] font-bold uppercase text-accent-foreground">Mais pedido</span>}
               </div>
               <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-4 p-5">
